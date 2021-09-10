@@ -129,7 +129,7 @@ async function setupValidators(
     i++
   }
 
-  await initializeClientWallets(inboxAddress)
+  // await initializeClientWallets(inboxAddress)
 }
 
 if (require.main === module) {
