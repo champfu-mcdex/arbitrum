@@ -25,6 +25,13 @@ import json
 
 import build_validator_docker
 from support.run import run
+from pathlib import Path
+ROOT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
+BRIDGE_ETH_ADDRESSES_PATH = ROOT_DIR / 'packages/arb-bridge-eth/bridge_eth_addresses.json'
+BRIDGE_UTILS_ADDRESS = ""
+with open(BRIDGE_ETH_ADDRESSES_PATH) as f:
+    data = json.load(f)
+    BRIDGE_UTILS_ADDRESS = data['contracts']['BridgeUtils']['address']
 
 # package configuration
 NAME = "arb-deploy"
@@ -51,7 +58,7 @@ services:
             - %s:/home/user/state
         image: arb-validator
         entrypoint: '/home/user/go/bin/arb-node'
-        command: --sequencer %s state %s %s
+        command: --sequencer %s state %s %s %s
         ports:
             - '1235:1235'
             - '8547:8547'
@@ -60,7 +67,7 @@ services:
 
 
 def compose_header(state_abspath, extra_flags, rpc_url, rollup_address):
-    return COMPOSE_HEADER % (state_abspath, extra_flags, rpc_url, rollup_address)
+    return COMPOSE_HEADER % (state_abspath, extra_flags, rpc_url, rollup_address, BRIDGE_UTILS_ADDRESS)
 
 
 # Parameters: validator id, absolute path to state folder,
@@ -70,7 +77,7 @@ COMPOSE_VALIDATOR = """
         volumes:
             - %s:/home/user/state
         image: arb-validator
-        command: state %s %s %s %s %s %s
+        command: state %s %s %s %s %s %s %s
 """
 
 
@@ -90,6 +97,7 @@ def compose_validator(
         state_abspath,
         rpc_url,
         rollup_address,
+        BRIDGE_UTILS_ADDRESS,
         validator_utils_address,
         validator_wallet_factory_address,
         strategy,

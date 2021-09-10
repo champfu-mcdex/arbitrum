@@ -36,17 +36,19 @@ task('create-chain', 'Creates a rollup chain')
     const [deployer] = await ethers.getSigners()
     const rollupCreatorDep = await deployments.get('RollupCreator')
     const RollupCreator = await ethers.getContractFactory('RollupCreator')
+      console.log("RollupCreator " + rollupCreatorDep.address)
+      console.log("deployer.getAddress() " + await deployer.getAddress())
     const rollupCreator = RollupCreator.attach(
       rollupCreatorDep.address
     ).connect(deployer)
     const tx = await rollupCreator.createRollup(
       machineHash,
-      900,
-      0,
-      2000000000,
-      ethers.utils.parseEther('.1'),
+        30, // confirmPeriodBlocks
+      0, // extraChallengeTimeBlock
+        600000000, // arbGasSpeedLimitPerBlock
+      ethers.utils.parseEther('.1'), // _baseStake
       ethers.constants.AddressZero,
-      await deployer.getAddress(),
+      await deployer.getAddress(), // owner
       taskArguments.sequencer,
       300,
       1500,
@@ -58,7 +60,6 @@ task('create-chain', 'Creates a rollup chain')
     )
     console.log(ev)
 
-    // const path = `rollup-${hre.network.name}.json`
     const path = `rollup-${hre.network.name}.json`
     const output = JSON.stringify({
       rollupAddress: ev.args[0],
