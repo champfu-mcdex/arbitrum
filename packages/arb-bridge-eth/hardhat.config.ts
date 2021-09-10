@@ -11,8 +11,6 @@ import 'hardhat-spdx-license-identifier'
 import 'hardhat-gas-reporter'
 import '@nomiclabs/hardhat-etherscan'
 
-import * as ADDRESS from './rollup-local_development.json'
-
 const verifyTask = require('./scripts/verifyTask') // eslint-disable-line @typescript-eslint/no-var-requires
 const setupVerifyTask = verifyTask.default
 setupVerifyTask()
@@ -29,8 +27,9 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, bre) => {
 
 task('remove-whitelist', 'Remove whitelist so that everyone can deposit')
   .setAction(async (taskArgs, hre) => {
-  const INBOX_ADDRESS = ADDRESS['inboxAddress'];
-  const ROLLUP_ADDRESS = ADDRESS['rollupAddress'];
+  const address = JSON.parse(fs.readFileSync('./rollup-local_development.json').toString())
+  const INBOX_ADDRESS = address['inboxAddress'];
+  const ROLLUP_ADDRESS = address['rollupAddress'];
   const {deployments, ethers} = hre;
   const [deployer] = await ethers.getSigners();
 
@@ -40,8 +39,6 @@ task('remove-whitelist', 'Remove whitelist so that everyone can deposit')
 
   // remove whitelist
   const GlobalRollupAdminFacet = await ethers.getContractFactory('RollupAdminFacet');
-  //const rollupAdminFacetDep = await deployments.get('RollupAdminFacet');
-  //console.log(rollupAdminFacetDep.address);
   const rollupAdminFacet = await GlobalRollupAdminFacet.attach(ROLLUP_ADDRESS).connect(deployer);
   const tx = await rollupAdminFacet.updateWhitelistConsumers(
     inbox_whitelist_address,
