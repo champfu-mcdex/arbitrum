@@ -23,13 +23,12 @@ async function setupRollup(
   sequencerAddress: string
 ): Promise<RollupCreatedEvent> {
   // TODO: is the L2 sequencer the 1st unlocked account in the L1 node?
-  const network = 'local_development'
-    console.log("sequencerAddress " + sequencerAddress);
+  const network = 'local_development';
+  console.log("sequencerAddress " + sequencerAddress);
   let result = require('child_process').execSync(
-        `yarn workspace arb-bridge-eth hardhat create-chain --sequencer ${sequencerAddress} --network ${network}`
-    )
+    `yarn workspace arb-bridge-eth hardhat create-chain --sequencer ${sequencerAddress} --network ${network}`)
   console.log(result.toString());
-  console.log("Done create-chain")
+  console.log("Done create-chain");
 
   const fileName = `rollup-${network}.json`
   const file = fs.readFileSync(`../arb-bridge-eth/${fileName}`).toString()

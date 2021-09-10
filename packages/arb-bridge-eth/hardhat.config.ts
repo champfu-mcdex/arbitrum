@@ -11,6 +11,8 @@ import 'hardhat-spdx-license-identifier'
 import 'hardhat-gas-reporter'
 import '@nomiclabs/hardhat-etherscan'
 
+import * as ADDRESS from './rollup-local_development.json'
+
 const verifyTask = require('./scripts/verifyTask') // eslint-disable-line @typescript-eslint/no-var-requires
 const setupVerifyTask = verifyTask.default
 setupVerifyTask()
@@ -25,6 +27,31 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, bre) => {
   }
 })
 
+task('remove-whitelist', 'Remove whitelist so that everyone can deposit')
+  .setAction(async (taskArgs, hre) => {
+  const INBOX_ADDRESS = ADDRESS['inboxAddress'];
+  const ROLLUP_ADDRESS = ADDRESS['rollupAddress'];
+  const {deployments, ethers} = hre;
+  const [deployer] = await ethers.getSigners();
+
+  // Get Inbox's whitelist
+  const GlobalInbox = await ethers.getContractFactory('Inbox');
+  const inbox_whitelist_address = await GlobalInbox.attach(INBOX_ADDRESS).whitelist();
+
+  // remove whitelist
+  const GlobalRollupAdminFacet = await ethers.getContractFactory('RollupAdminFacet');
+  //const rollupAdminFacetDep = await deployments.get('RollupAdminFacet');
+  //console.log(rollupAdminFacetDep.address);
+  const rollupAdminFacet = await GlobalRollupAdminFacet.attach(ROLLUP_ADDRESS).connect(deployer);
+  const tx = await rollupAdminFacet.updateWhitelistConsumers(
+    inbox_whitelist_address,
+    "0x0000000000000000000000000000000000000000",
+    [INBOX_ADDRESS],
+  );
+  const receipt = await tx.wait();
+  console.log(receipt)
+})
+
 task('create-chain', 'Creates a rollup chain')
   .addParam('sequencer', "The sequencer's address")
   .setAction(async (taskArguments, hre) => {
@@ -36,16 +63,16 @@ task('create-chain', 'Creates a rollup chain')
     const [deployer] = await ethers.getSigners()
     const rollupCreatorDep = await deployments.get('RollupCreator')
     const RollupCreator = await ethers.getContractFactory('RollupCreator')
-      console.log("RollupCreator " + rollupCreatorDep.address)
-      console.log("deployer.getAddress() " + await deployer.getAddress())
+    console.log("RollupCreator " + rollupCreatorDep.address)
+    console.log("deployer.getAddress() " + await deployer.getAddress())
     const rollupCreator = RollupCreator.attach(
       rollupCreatorDep.address
     ).connect(deployer)
     const tx = await rollupCreator.createRollup(
       machineHash,
-        30, // confirmPeriodBlocks
+      30, // confirmPeriodBlocks
       0, // extraChallengeTimeBlock
-        600000000, // arbGasSpeedLimitPerBlock
+      600000000, // arbGasSpeedLimitPerBlock
       ethers.utils.parseEther('.1'), // _baseStake
       ethers.constants.AddressZero,
       await deployer.getAddress(), // owner
@@ -131,6 +158,9 @@ const config = {
     },
     local_development: {
       url: 'http://127.0.0.1:7545',
+      accounts: process.env['DEVNET_PRIVKEY']
+        ? [process.env['DEVNET_PRIVKEY']]
+        : [],
     },
     kovan: {
       url: 'https://kovan.infura.io/v3/' + process.env['INFURA_KEY'],
