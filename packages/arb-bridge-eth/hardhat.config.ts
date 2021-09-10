@@ -102,8 +102,8 @@ task('deposit', 'Deposit coins into ethbridge')
   .addPositionalParam('privkey', 'The private key of the depositer')
   .addPositionalParam('dest', "The destination account's address")
   .addPositionalParam('amount', 'The amount to deposit')
-  .setAction(async ({ inboxAddress, privkey, dest, amount }, bre) => {
-    const { ethers } = bre
+  .setAction(async ({ inboxAddress, privkey, dest, amount }, hre) => {
+    const { ethers } = hre
     const wallet = new ethers.Wallet(privkey, ethers.provider)
     const GlobalInbox = await ethers.getContractFactory('Inbox')
     const inbox = GlobalInbox.attach(inboxAddress).connect(wallet)
