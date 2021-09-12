@@ -35,7 +35,8 @@
     "docker:geth": "rm -rf deployments/parity && ./scripts/launch-geth",
     "verify": "hardhat etherscan-verify --api-key $(dotenv -p ETHERSCAN_API_KEY)",
     "typechain": "hardhat typechain",
-    "remove-whitelist": "hardhat --network local_development remove-whitelist"
+    "remove-whitelist": "hardhat --network local_development remove-whitelist",
+    "deposit": "hardhat --network local_development deposit"
   },
   "dependencies": {
     "@openzeppelin/contracts": "3.4.0",

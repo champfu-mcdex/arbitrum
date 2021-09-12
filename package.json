@@ -35,7 +35,8 @@
     "prod:initialize": "yarn workspace tools prod:initialize",
     "deploy:validators": "./scripts/arb_deploy.py",
     "sol_docs:generate": "python docs/sol_contract_docs/generate_docs.py",
-    "remove-whitelist": "yarn workspace arb-bridge-eth remove-whitelist"
+    "remove-whitelist": "yarn workspace arb-bridge-eth remove-whitelist",
+    "deposit": "yarn workspace arb-bridge-eth deposit"
   },
   "engines": {
     "node": ">= 8.0.0 < 16.0.0",
