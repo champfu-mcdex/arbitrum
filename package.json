@@ -25,6 +25,7 @@
     "docker:parity": "yarn workspace arb-bridge-eth docker:parity",
     "docker:ganache": "yarn workspace arb-bridge-eth docker:ganache",
     "docker:geth": "yarn workspace arb-bridge-eth docker:geth",
+    "deploy:live": "yarn workspace arb-bridge-eth deploy:live",
     "prepare": "yarn workspace arb-ts prepare",
     "go:vet": "./scripts/run-go-packages \"go list ./... | grep -v 'arb-node-core/ethbridge[^/]*contracts' | xargs go vet\"",
     "go:generate": "./scripts/run-go-packages 'go generate ./...'",
