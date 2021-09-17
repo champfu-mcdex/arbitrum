@@ -112,7 +112,7 @@ def compose_validator(
 
 
 # Compile contracts to `contract.ao` and export to Docker and run validators
-def deploy(sudo_flag, build_flag, up_flag, detach_flag, benchmark_path, rollup, password):
+def deploy(sudo_flag, build_flag, up_flag, benchmark_path, rollup, password):
     # Stop running Arbitrum containers
     halt_docker(sudo_flag)
 
@@ -283,7 +283,6 @@ def main():
         sudo_flag=args.sudo,
         build_flag=args.build,
         up_flag=args.up,
-        detach_flag=args.detach,
         benchmark_path=args.benchmark_docker_compose_path,
         rollup=args.rollup,
         password=args.password
