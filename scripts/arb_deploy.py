@@ -195,7 +195,7 @@ def deploy(sudo_flag, build_flag, up_flag, benchmark_path, rollup, password):
                 if i == 0:
                     run("docker-compose -f %s up -d arb-node" % benchmark_path, sudo=sudo_flag)
                 else:
-                    run("docker-compose -f %s up -d arb-validator%s" % benchmark_path, i, sudo=sudo_flag)
+                    run("docker-compose -f %s up -d arb-validator%s" % (benchmark_path, i), sudo=sudo_flag)
         else:
             run("docker-compose -f %s up" % compose, sudo=sudo_flag)
 
