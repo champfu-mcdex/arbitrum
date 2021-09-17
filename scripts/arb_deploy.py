@@ -239,7 +239,7 @@ def main():
         help="Run docker-compose with sudo",
     )
     parser.add_argument(
-        "-d"
+        "-d",
         "--detach",
         action="store_true",
         dest="detach",
