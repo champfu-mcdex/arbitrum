@@ -191,7 +191,11 @@ def deploy(sudo_flag, build_flag, up_flag, benchmark_path, rollup, password):
     if not build_flag or up_flag:
         print("Deploying", n_validators, "validators for rollup", rollup_address)
         if benchmark_path:
-            run("docker-compose -f %s up -d" % benchmark_docker_compose, sudo=sudo_flag)
+            for i in range(0, n_validators):
+                if i == 0:
+                    run("docker-compose -f %s up -d arb-node" % benchmark_path, sudo=sudo_flag)
+                else:
+                    run("docker-compose -f %s up -d arb-validator%s" % benchmark_path, i, sudo=sudo_flag)
         else:
             run("docker-compose -f %s up" % compose, sudo=sudo_flag)
 
