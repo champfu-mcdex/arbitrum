@@ -127,7 +127,7 @@ def deploy(sudo_flag, build_flag, up_flag, detach_flag, benchmark_path, rollup, 
     # Overwrite DOCKER_COMPOSE_FILENAME and benchmark_docker_compose if path is given
     benchmark_docker_compose = ""
     if benchmark_path:
-        with open(args.benchmark_docker_compose_path) as file:
+        with open(benchmark_path) as file:
             benchmark_docker_compose = file.read()
 
     compose = os.path.abspath("./" + DOCKER_COMPOSE_FILENAME)
