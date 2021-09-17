@@ -25,13 +25,6 @@ import json
 
 import build_validator_docker
 from support.run import run
-from pathlib import Path
-ROOT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
-BRIDGE_ETH_ADDRESSES_PATH = ROOT_DIR / 'packages/arb-bridge-eth/bridge_eth_addresses.json'
-BRIDGE_UTILS_ADDRESS = ""
-with open(BRIDGE_ETH_ADDRESSES_PATH) as f:
-    data = json.load(f)
-    BRIDGE_UTILS_ADDRESS = data['contracts']['BridgeUtils']['address']
 
 # package configuration
 NAME = "arb-deploy"
@@ -69,7 +62,7 @@ COMPOSE_NODE = """
 """
 
 def compose_node(state_abspath, extra_flags, rpc_url, rollup_address):
-    return COMPOSE_NODE % (state_abspath, extra_flags, rpc_url, rollup_address, BRIDGE_UTILS_ADDRESS)
+    return COMPOSE_NODE % (state_abspath, extra_flags, rpc_url, rollup_address, "0x603B563e088859CB752e983AAD9E47BA1A6120C9")
 
 # Parameters: validator id, absolute path to state folder,
 # absolute path to contract, validator id
@@ -98,7 +91,7 @@ def compose_validator(
         state_abspath,
         rpc_url,
         rollup_address,
-        BRIDGE_UTILS_ADDRESS,
+        "0x603B563e088859CB752e983AAD9E47BA1A6120C9",
         validator_utils_address,
         validator_wallet_factory_address,
         strategy,
@@ -238,7 +231,7 @@ def halt_docker(sudo_flag):
 
 
 def main():
-    run("./scripts/create-network")
+    # run("./scripts/create-network")
 
     parser = argparse.ArgumentParser(prog=NAME, description=DESCRIPTION)
     # Required
