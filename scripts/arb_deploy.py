@@ -53,6 +53,9 @@ networks:
         external:
             name: arb-network
 services:
+"""
+
+COMPOSE_NODE = """
     arb-node:
         volumes:
             - %s:/home/user/state
@@ -65,10 +68,8 @@ services:
             - '8548:8548'
 """
 
-
-def compose_header(state_abspath, extra_flags, rpc_url, rollup_address):
-    return COMPOSE_HEADER % (state_abspath, extra_flags, rpc_url, rollup_address, BRIDGE_UTILS_ADDRESS)
-
+def compose_node(state_abspath, extra_flags, rpc_url, rollup_address):
+    return COMPOSE_NODE % (state_abspath, extra_flags, rpc_url, rollup_address, BRIDGE_UTILS_ADDRESS)
 
 # Parameters: validator id, absolute path to state folder,
 # absolute path to contract, validator id
@@ -111,7 +112,7 @@ def compose_validator(
 
 
 # Compile contracts to `contract.ao` and export to Docker and run validators
-def deploy(sudo_flag, build_flag, up_flag, detach_flag, rollup, password):
+def deploy(sudo_flag, build_flag, up_flag, detach_flag, benchmark_path, rollup, password):
     # Stop running Arbitrum containers
     halt_docker(sudo_flag)
 
@@ -123,10 +124,14 @@ def deploy(sudo_flag, build_flag, up_flag, detach_flag, rollup, password):
             break
         n_validators += 1
 
-    # Overwrite DOCKER_COMPOSE_FILENAME
+    # Overwrite DOCKER_COMPOSE_FILENAME and benchmark_docker_compose if path is given
+    benchmark_docker_compose = ""
+    if benchmark_path:
+        with open(args.benchmark_docker_compose_path) as file:
+            benchmark_docker_compose = file.read()
 
     compose = os.path.abspath("./" + DOCKER_COMPOSE_FILENAME)
-    contents = ""
+    contents = COMPOSE_HEADER
     for i in range(0, n_validators):
         with open(os.path.join(states_path % i, "config.json")) as json_file:
             data = json.load(json_file)
@@ -149,14 +154,14 @@ def deploy(sudo_flag, build_flag, up_flag, detach_flag, rollup, password):
                     "arb_deploy requires validator password through [--password=pass] parameter or in config.json file"
                 )
         if i == 0:
-            contents = compose_header(
-                states_path % 0, extra_flags, eth_url, rollup_address
-            )
+            template = compose_node(states_path % 0, extra_flags, eth_url, rollup_address)
+            contents += template
+            benchmark_docker_compose += template
         else:
             strategy = "StakeLatest"
             if i == 1:
                 strategy = "MakeNodes"
-            contents += compose_validator(
+            template = compose_validator(
                 i,
                 states_path % i,
                 extra_flags,
@@ -166,9 +171,16 @@ def deploy(sudo_flag, build_flag, up_flag, detach_flag, rollup, password):
                 validator_wallet_factory_address,
                 strategy,
             )
+            contents += template
+            benchmark_docker_compose += template
 
+    # Overwrite DOCKER_COMPOSE_FILENAME and benchmark_docker_compose if path is given
     with open(compose, "w") as f:
         f.write(contents)
+
+    if benchmark_path:
+        with open(benchmark_path, "w") as f:
+            f.write(benchmark_docker_compose)
 
     # Build
     if not up_flag or build_flag:
@@ -245,6 +257,14 @@ def main():
         dest="detach",
         help="Run docker-compose detach mode"
     )
+    parser.add_argument(
+        "-b",
+        "--benchmark-docker-compose-path",
+        type=str,
+        dest="benchmark_docker_compose_path",
+        default="",
+        help="Append Arbitrum docker-compose command to benchmark"
+    )
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -259,7 +279,15 @@ def main():
     args = parser.parse_args()
 
     # Deploy
-    deploy(args.sudo, args.build, args.up, args.detach, args.rollup, args.password)
+    deploy(
+        sudo_flag=args.sudo,
+        build_flag=args.build,
+        up_flag=args.up,
+        detach_flag=args.detach,
+        benchmark_path=args.benchmark_docker_compose_path,
+        rollup=args.rollup,
+        password=args.password
+    )
 
 
 if __name__ == "__main__":
