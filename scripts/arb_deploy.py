@@ -190,8 +190,8 @@ def deploy(sudo_flag, build_flag, up_flag, detach_flag, benchmark_path, rollup, 
     # Run
     if not build_flag or up_flag:
         print("Deploying", n_validators, "validators for rollup", rollup_address)
-        if detach_flag:
-            run("docker-compose -f %s up -d" % compose, sudo=sudo_flag)
+        if benchmark_path:
+            run("docker-compose -f %s up -d" % benchmark_docker_compose, sudo=sudo_flag)
         else:
             run("docker-compose -f %s up" % compose, sudo=sudo_flag)
 
