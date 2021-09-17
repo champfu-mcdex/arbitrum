@@ -30,7 +30,7 @@ task('remove-whitelist', 'Remove whitelist so that everyone can deposit')
   const address = JSON.parse(fs.readFileSync('./rollup-local_development.json').toString())
   const INBOX_ADDRESS = address['inboxAddress'];
   const ROLLUP_ADDRESS = address['rollupAddress'];
-  const {deployments, ethers} = hre;
+  const {ethers} = hre;
   const [deployer] = await ethers.getSigners();
 
   // Get Inbox's whitelist
@@ -46,7 +46,9 @@ task('remove-whitelist', 'Remove whitelist so that everyone can deposit')
     [INBOX_ADDRESS],
   );
   const receipt = await tx.wait();
-  console.log(receipt)
+  if (receipt.status !== 1) {
+    throw new Error("receipt error:" + receipt);
+  }
 })
 
 task('create-chain', 'Creates a rollup chain')
