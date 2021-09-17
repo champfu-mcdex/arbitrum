@@ -67,9 +67,9 @@ task('create-chain', 'Creates a rollup chain')
     ).connect(deployer)
     const tx = await rollupCreator.createRollup(
       machineHash,
-      30, // confirmPeriodBlocks
+      900, // confirmPeriodBlocks
       0, // extraChallengeTimeBlock
-      600000000, // arbGasSpeedLimitPerBlock
+      2000000000, // arbGasSpeedLimitPerBlock
       ethers.utils.parseEther('.1'), // _baseStake
       ethers.constants.AddressZero,
       await deployer.getAddress(), // owner
