@@ -111,7 +111,7 @@ def compose_validator(
 
 
 # Compile contracts to `contract.ao` and export to Docker and run validators
-def deploy(sudo_flag, build_flag, up_flag, rollup, password):
+def deploy(sudo_flag, build_flag, up_flag, detach_flag, rollup, password):
     # Stop running Arbitrum containers
     halt_docker(sudo_flag)
 
@@ -178,7 +178,10 @@ def deploy(sudo_flag, build_flag, up_flag, rollup, password):
     # Run
     if not build_flag or up_flag:
         print("Deploying", n_validators, "validators for rollup", rollup_address)
-        run("docker-compose -f %s up" % compose, sudo=sudo_flag)
+        if detach_flag:
+            run("docker-compose -f %s up -d" % compose, sudo=sudo_flag)
+        else:
+            run("docker-compose -f %s up" % compose, sudo=sudo_flag)
 
 
 def halt_docker(sudo_flag):
@@ -235,6 +238,14 @@ def main():
         dest="sudo",
         help="Run docker-compose with sudo",
     )
+    parser.add_argument(
+        "-d"
+        "--detach",
+        action="store_true",
+        dest="detach",
+        help="Run docker-compose detach mode"
+    )
+
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "--build",
@@ -245,11 +256,10 @@ def main():
     group.add_argument(
         "--up", action="store_true", dest="up", help="Run docker-compose up only"
     )
-
     args = parser.parse_args()
 
     # Deploy
-    deploy(args.sudo, args.build, args.up, args.rollup, args.password)
+    deploy(args.sudo, args.build, args.up, args.detach, args.rollup, args.password)
 
 
 if __name__ == "__main__":
